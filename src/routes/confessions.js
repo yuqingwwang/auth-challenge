@@ -61,7 +61,12 @@ function post(req, res) {
    * [4] Use the user ID to create the confession in the DB
    * [5] Redirect back to the logged in user's confession page
    */
-  const current_user = Number(req.params.user_id);
+  const sid = req.signedCookies.sid;
+  const session = getSession(sid);
+  const current_user = session && session.user_id;
+  if (!req.body.content || !current_user) {
+    return res.status(401).send("<h1>Confession failed</h1>");
+  }
   createConfession(req.body.content, current_user);
   res.redirect(`/confessions/${current_user}`);
 }
